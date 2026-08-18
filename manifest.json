@@ -1,0 +1,9 @@
+{
+  "name": "AppHub — Портал приложений",
+  "short_name": "AppHub",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f2fb",
+  "theme_color": "#7c6cf0",
+  "icons": []
+}
