@@ -1,4 +1,5 @@
 import { toast } from '../core/toast.js';
+import { hookFileDrop, readFileAsDataURL } from '../core/utils.js';
 
 export function init(container) {
   container.innerHTML = `
@@ -20,6 +21,22 @@ export function init(container) {
 
   const input = container.querySelector('#b64Input');
   const output = container.querySelector('#b64Output');
+
+  hookFileDrop(input, {
+    onFile: async (file) => {
+      const dataUrl = await readFileAsDataURL(file);
+      input.value = dataUrl;
+      output.value = dataUrl;
+      toast('Изображение загружено как data URL', 'success');
+    },
+    onText: (text, file) => {
+      input.value = text;
+      try {
+        output.value = btoa(unescape(encodeURIComponent(text)));
+        toast('Файл ' + file.name + ' закодирован', 'success');
+      } catch { toast('Ошибка кодирования', 'error'); }
+    }
+  });
 
   container.querySelector('#b64EncodeBtn').addEventListener('click', () => {
     try {

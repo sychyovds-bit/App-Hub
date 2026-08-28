@@ -1,3 +1,5 @@
+import { debounce } from '../core/utils.js';
+
 export function init(container) {
   const data = {
     length: {
@@ -14,29 +16,48 @@ export function init(container) {
     },
     data: {
       'Б': 1, 'КБ': 1024, 'МБ': 1048576, 'ГБ': 1073741824, 'ТБ': 1099511627776
+    },
+    area: {
+      'мм²': 0.000001, 'см²': 0.0001, 'м²': 1, 'сотка': 100,
+      'гектар': 10000, 'км²': 1000000, 'дюйм²': 0.00064516,
+      'фут²': 0.092903, 'ярд²': 0.836127, 'акр': 4046.86
+    },
+    volume: {
+      'мл': 0.001, 'л': 1, 'м³': 1000, 'чайная ложка': 0.005,
+      'столовая ложка': 0.015, 'стакан': 0.25, 'галлон': 3.78541,
+      'пинта': 0.473176, 'кварта': 0.946353, 'баррель': 158.987
+    },
+    currency: {
+      'USD': 1, 'EUR': 1.09, 'GBP': 1.27, 'RUB': 0.011, 'CNY': 0.14,
+      'JPY': 0.0067, 'CHF': 1.12, 'KZT': 0.0021, 'UAH': 0.024, 'BYN': 0.31
     }
   };
 
   container.innerHTML = `
     <h1>Конвертер величин</h1>
-    <p class="subtitle">Длина, вес, температура, скорость, данные</p>
+    <p class="subtitle">Длина, вес, температура, скорость, данные, площадь, объём, валюты</p>
     <div class="widget">
       <div class="conv-row">
-        <select id="convType">
+        <select id="convType" aria-label="Тип величины">
           <option value="length">Длина</option>
           <option value="weight">Вес</option>
           <option value="temp">Температура</option>
           <option value="speed">Скорость</option>
           <option value="data">Данные</option>
+          <option value="area">Площадь</option>
+          <option value="volume">Объём</option>
+          <option value="currency">Валюты</option>
         </select>
       </div>
       <div class="conv-row">
-        <input id="convInput" type="number" value="1" style="width:120px">
-        <select id="convFrom"></select>
+        <input id="convInput" type="number" value="1" style="width:120px" aria-label="Значение">
+        <select id="convFrom" aria-label="Из единицы"></select>
+        <button class="btn-ghost conv-swap" id="convSwapBtn" title="Поменять единицы местами" aria-label="Поменять единицы местами">⇄</button>
         <span style="color:var(--muted)">→</span>
-        <select id="convTo"></select>
+        <select id="convTo" aria-label="В единицу"></select>
       </div>
-      <div class="conv-result" id="convResult"></div>
+      <div class="conv-note" id="convNote" hidden>Статические курсы — для справки, не актуальны в реальном времени</div>
+      <div class="conv-result" id="convResult" aria-live="polite"></div>
       <div class="conv-history" id="convHistory"></div>
     </div>
   `;
@@ -49,6 +70,8 @@ export function init(container) {
   const historyEl = container.querySelector('#convHistory');
   let history = [];
 
+  const noteEl = container.querySelector('#convNote');
+
   function buildUnits() {
     const type = typeEl.value;
     const units = Array.isArray(data[type]) ? data[type] : Object.keys(data[type]);
@@ -56,6 +79,7 @@ export function init(container) {
     fromEl.innerHTML = opts;
     toEl.innerHTML = opts;
     toEl.selectedIndex = Math.min(1, units.length - 1);
+    noteEl.hidden = type !== 'currency';
     convert();
   }
 
@@ -86,9 +110,16 @@ export function init(container) {
   }
 
   typeEl.addEventListener('change', buildUnits);
-  inputEl.addEventListener('input', convert);
+  inputEl.addEventListener('input', debounce(convert, 200));
   fromEl.addEventListener('change', convert);
   toEl.addEventListener('change', convert);
+
+  container.querySelector('#convSwapBtn').addEventListener('click', () => {
+    const i = fromEl.selectedIndex;
+    fromEl.selectedIndex = toEl.selectedIndex;
+    toEl.selectedIndex = i;
+    convert();
+  });
 
   buildUnits();
 }

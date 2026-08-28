@@ -1,7 +1,10 @@
 import { toast } from '../core/toast.js';
 
 export function init(container) {
-  const words = 'lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute irure in reprehenderit voluptate velit esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum'.split(' ');
+  const DICTS = {
+    latin: 'lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute irure in reprehenderit voluptate velit esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum'.split(' '),
+    russian: 'далеко-далеко за словесными горами в стране гласных и согласных живут рыбные тексты вдали от всех живут языках семантика это его обеспечит необходимыми правилами всемогущая по всей заманивший последний домах жарившие вскоре злых снова безопасную власти свой она единственное заголовок утонув дорогу одна продолжил что толку предупреждал за однажды ему взобравшись встретил коварных вопрос повстречался повстречал маленькая свою назад знаках родного над страну он приставка до это девочка себя знаках вопроса дороге строчка парадигматическая всемогущая составитель лучше образ жизни страна семантика великий единственное снова текста журчит маленькая ты даже заголовок предупреждал вершину однажды punkt последний взгляд знаках подпоясал'.split(' ')
+  };
 
   container.innerHTML = `
     <h1>Lorem Ipsum</h1>
@@ -16,6 +19,12 @@ export function init(container) {
             <option value="words">Слова</option>
           </select>
         </label>
+        <label>Язык:
+          <select id="loremLang">
+            <option value="latin">Латынь</option>
+            <option value="russian">Русский (рыба)</option>
+          </select>
+        </label>
         <button class="btn" id="loremGenBtn">Сгенерировать</button>
         <button class="btn-ghost" id="loremCopyBtn">Копировать</button>
       </div>
@@ -25,7 +34,8 @@ export function init(container) {
 
   const output = container.querySelector('#loremOutput');
 
-  function randWord() { return words[Math.floor(Math.random() * words.length)]; }
+  function words() { return DICTS[container.querySelector('#loremLang').value] || DICTS.latin; }
+  function randWord() { const w = words(); return w[Math.floor(Math.random() * w.length)]; }
 
   function genSentence() {
     const len = 8 + Math.floor(Math.random() * 12);

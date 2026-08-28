@@ -119,7 +119,8 @@ export function init(container) {
   }
 
   function loop(timestamp) {
-    if (timestamp - lastTime >= 120) {
+    const delay = Math.max(70, 120 - score * 2);
+    if (timestamp - lastTime >= delay) {
       lastTime = timestamp;
       tick();
     }
@@ -162,6 +163,12 @@ export function init(container) {
   }
 
   document.addEventListener('keydown', handleKey);
+  document.addEventListener('router:leave', function onLeave(e) {
+    if (e.detail.page !== 'snake') return;
+    document.removeEventListener('router:leave', onLeave);
+    document.removeEventListener('keydown', handleKey);
+    if (animId) cancelAnimationFrame(animId);
+  });
   startBtn.addEventListener('click', start);
   pauseBtn.addEventListener('click', togglePause);
 

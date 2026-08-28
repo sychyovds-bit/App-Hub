@@ -27,5 +27,31 @@ export const icons = {
 
   regex: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg>`,
 
-  kanban: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="8" rx="1"/></svg>`
+  kanban: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="8" rx="1"/></svg>`,
+
+  qr: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><line x1="14" y1="14" x2="14" y2="17"/><line x1="17" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="17" y2="21"/><line x1="21" y1="18" x2="21" y2="21"/></svg>`,
+
+  markdown: `<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 15v-6l2.5 3L11 9v6"/><path d="M15 9v4"/><path d="M13.5 13l1.5 2 1.5-2"/></svg>`,
+
+  countdown: `<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="9" y1="2" x2="15" y2="2"/><line x1="12" y1="2" x2="12" y2="5"/></svg>`,
+
+  screenshot: `<svg viewBox="0 0 24 24"><path d="M2 8V5a2 2 0 012-2h3"/><path d="M17 3h3a2 2 0 012 2v3"/><path d="M22 16v3a2 2 0 01-2 2h-3"/><path d="M7 21H4a2 2 0 01-2-2v-3"/><circle cx="12" cy="12" r="3"/></svg>`,
+
+  swatch: `<svg viewBox="0 0 24 24"><path d="M11 2l7 7-9.5 9.5a4.95 4.95 0 01-7-7L11 2z"/><circle cx="6.5" cy="16.5" r="1"/></svg>`,
+
+  diff: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="18" rx="2"/><rect x="13" y="3" width="8" height="18" rx="2"/><line x1="5.5" y1="8" x2="8.5" y2="8"/><line x1="15.5" y1="8" x2="18.5" y2="8"/><line x1="5.5" y1="12" x2="8.5" y2="12"/><line x1="15.5" y1="12" x2="18.5" y2="12"/></svg>`,
+
+  uuid: `<svg viewBox="0 0 24 24"><rect x="2" y="9" width="20" height="6" rx="2"/><line x1="6" y1="12" x2="6" y2="12.01"/><line x1="10" y1="12" x2="10" y2="12.01"/><line x1="14" y1="12" x2="14" y2="12.01"/><line x1="18" y1="12" x2="18" y2="12.01"/></svg>`,
+
+  hash: `<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1.5"/></svg>`,
+
+  symbols: `<svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="4"/><rect x="14" y="4" width="7" height="7" rx="1"/><path d="M4 19h8"/><path d="M8 15v8"/><path d="M17.5 15v8"/><path d="M14.5 19h6"/></svg>`,
+
+  calendar: `<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>`,
+
+  metronome: `<svg viewBox="0 0 24 24"><path d="M9 3h6l4 18H5L9 3z"/><line x1="12" y1="13" x2="18" y2="7"/><circle cx="12" cy="13" r="1.4"/></svg>`,
+
+  clock: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>`,
+
+  gamepad: `<svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="5"/><line x1="6" y1="10" x2="6" y2="14"/><line x1="4" y1="12" x2="8" y2="12"/><line x1="15" y1="11" x2="15.01" y2="11"/><line x1="18" y1="13" x2="18.01" y2="13"/></svg>`
 };

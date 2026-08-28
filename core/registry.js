@@ -6,7 +6,7 @@ export const registry = {
       console.warn(`Registry: app "${id}" already registered`);
       return;
     }
-    apps.push({ id, title, description, icon, category, load, loaded: false, instance: null });
+    apps.push({ id, title, description, icon, category, load, loaded: false, instance: null, loading: null });
   },
 
   getAll() {
@@ -17,14 +17,29 @@ export const registry = {
     return apps.find(a => a.id === id) || null;
   },
 
-  async loadApp(id) {
+  loadApp(id) {
     const app = this.getById(id);
-    if (!app) return null;
-    if (!app.loaded) {
-      const module = await app.load();
-      app.instance = module;
-      app.loaded = true;
+    if (!app) return Promise.resolve(null);
+    if (app.loaded) return Promise.resolve(app.instance);
+    if (!app.loading) {
+      app.loading = app.load()
+        .then(module => {
+          app.instance = module;
+          app.loaded = true;
+          app.loading = null;
+          return module;
+        })
+        .catch(err => {
+          app.loading = null;
+          throw err;
+        });
     }
-    return app.instance;
+    return app.loading;
+  },
+
+  preload(id) {
+    const app = this.getById(id);
+    if (!app || app.loaded) return;
+    this.loadApp(id).catch(() => {});
   }
 };

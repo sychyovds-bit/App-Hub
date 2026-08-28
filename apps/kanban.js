@@ -1,6 +1,7 @@
 import { storage } from '../core/storage.js';
 import { toast } from '../core/toast.js';
 import { modal } from '../core/modal.js';
+import { debounce, hookFileDrop } from '../core/utils.js';
 
 export function init(container) {
   let board = storage.get('kanban', {
@@ -17,12 +18,103 @@ export function init(container) {
   container.innerHTML = `
     <h1>Канбан-доска</h1>
     <p class="subtitle">Перетаскивайте карточки между колонками</p>
+    <div class="kanban-tools">
+      <button class="btn-ghost" id="kanbanExportMdBtn" title="Скачать доску в Markdown">Экспорт MD</button>
+      <button class="btn-ghost" id="kanbanExportJsonBtn" title="Скачать доску в JSON">Экспорт JSON</button>
+      <button class="btn-ghost" id="kanbanImportBtn" title="Загрузить доску из JSON-файла">Импорт JSON</button>
+    </div>
     <div class="kanban-board" id="kanbanBoard"></div>
   `;
 
   const boardEl = container.querySelector('#kanbanBoard');
 
-  function save() { storage.set('kanban', board); }
+  const save = debounce(() => storage.set('kanban', board), 1000);
+
+  function download(content, filename, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+
+  container.querySelector('#kanbanExportMdBtn').addEventListener('click', () => {
+    const md = board.columns.map(col =>
+      `## ${col.title}\n\n` +
+      (col.cards.length ? col.cards.map(c => `- ${c.text}`).join('\n') : '_пусто_')
+    ).join('\n\n');
+    download(md, 'kanban.md', 'text/markdown');
+    toast('Markdown сохранён', 'success');
+  });
+
+  container.querySelector('#kanbanExportJsonBtn').addEventListener('click', () => {
+    download(JSON.stringify(board, null, 2), 'kanban.json', 'application/json');
+    toast('JSON сохранён', 'success');
+  });
+
+  function validateBoard(data) {
+    if (!data || !Array.isArray(data.columns)) return false;
+    return data.columns.every(col =>
+      typeof col.title === 'string' &&
+      Array.isArray(col.cards) &&
+      col.cards.every(c => typeof c.text === 'string')
+    );
+  }
+
+  function importBoard(data) {
+    if (!validateBoard(data)) {
+      toast('Неверный формат файла доски', 'error');
+      return;
+    }
+    const oldBoard = board;
+    board = {
+      columns: data.columns.map((col, ci) => ({
+        id: typeof col.id === 'string' ? col.id : 'col-' + ci,
+        title: col.title,
+        cards: col.cards.map((c, i) => ({
+          id: typeof c.id === 'string' ? c.id : Date.now().toString(36) + '-' + i,
+          text: c.text
+        }))
+      }))
+    };
+    storage.set('kanban', board);
+    render();
+    toast('Доска импортирована', 'success', 5000, {
+      actionLabel: 'Отменить',
+      onAction: () => {
+        board = oldBoard;
+        storage.set('kanban', board);
+        render();
+        toast('Импорт отменён', 'info');
+      }
+    });
+  }
+
+  container.querySelector('#kanbanImportBtn').addEventListener('click', () => {
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = '.json,application/json';
+    inp.addEventListener('change', () => {
+      const file = inp.files && inp.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { importBoard(JSON.parse(reader.result)); }
+        catch { toast('Некорректный JSON-файл', 'error'); }
+      };
+      reader.readAsText(file);
+    });
+    inp.click();
+  });
+
+  hookFileDrop(boardEl, {
+    onText: (text) => {
+      try { importBoard(JSON.parse(text)); }
+      catch { toast('Некорректный JSON-файл', 'error'); }
+    }
+  });
 
   function render() {
     boardEl.innerHTML = '';
@@ -53,7 +145,7 @@ export function init(container) {
         cardEl.innerHTML = `
           <div class="kanban-card-text">${card.text.replace(/</g, '&lt;')}</div>
           <div class="kanban-card-actions">
-            <button class="kanban-card-del" title="Удалить">&times;</button>
+            <button class="kanban-card-del" title="Удалить" aria-label="Удалить карточку">&times;</button>
           </div>
         `;
 
@@ -76,9 +168,18 @@ export function init(container) {
             body: `<p>"${card.text.replace(/</g, '&lt;')}"</p>`,
             actions: [
               { label: 'Удалить', class: 'btn', onClick: () => {
-                col.cards.splice(idx, 1);
+                const remIdx = col.cards.findIndex(c => c.id === card.id);
+                if (remIdx === -1) return;
+                col.cards.splice(remIdx, 1);
                 save(); render();
-                toast('Карточка удалена', 'info');
+                toast('Карточка удалена', 'info', 5000, {
+                  actionLabel: 'Отменить',
+                  onAction: () => {
+                    col.cards.splice(Math.min(remIdx, col.cards.length), 0, card);
+                    save(); render();
+                    toast('Карточка восстановлена', 'success');
+                  }
+                });
               }},
               { label: 'Отмена', class: 'btn-ghost' }
             ]
@@ -126,7 +227,7 @@ export function init(container) {
   function showAddModal(col) {
     const m = modal({
       title: 'Новая карточка',
-      body: `<input type="text" id="kanbanNewCard" placeholder="Текст задачи..." style="width:100%">`,
+      body: `<input type="text" id="kanbanNewCard" placeholder="Текст задачи..." aria-label="Текст задачи" style="width:100%">`,
       actions: [
         { label: 'Добавить', class: 'btn', onClick: () => {
           const input = document.getElementById('kanbanNewCard');
@@ -141,6 +242,11 @@ export function init(container) {
     });
     setTimeout(() => document.getElementById('kanbanNewCard')?.focus(), 100);
   }
+
+  window.addEventListener('pagehide', function onLeave() {
+    storage.set('kanban', board);
+    window.removeEventListener('pagehide', onLeave);
+  });
 
   render();
 }

@@ -1,11 +1,12 @@
 import { toast } from '../core/toast.js';
+import { hookFileDrop } from '../core/utils.js';
 
 export function init(container) {
   container.innerHTML = `
     <h1>JSON-форматтер</h1>
-    <p class="subtitle">Форматирование, валидация и минификация JSON</p>
+    <p class="subtitle">Форматирование, валидация и минификация JSON · перетащите .json-файл</p>
     <div class="widget" style="max-width:640px">
-      <textarea class="json-area" id="jsonInput" placeholder='Вставьте JSON сюда... {"key": "value"}'></textarea>
+      <textarea class="json-area" id="jsonInput" placeholder='Вставьте JSON сюда... {"key": "value"}' aria-label="Исходный JSON"></textarea>
       <div class="json-actions">
         <button class="btn" id="jsonFormatBtn">Форматировать</button>
         <button class="btn-ghost" id="jsonMinifyBtn">Минифицировать</button>
@@ -13,13 +14,27 @@ export function init(container) {
         <button class="btn-ghost" id="jsonCopyBtn">Копировать результат</button>
       </div>
       <div class="json-error" id="jsonError" hidden></div>
-      <div class="json-output" id="jsonOutput"></div>
+      <div class="json-output" id="jsonOutput" aria-live="polite"></div>
     </div>
   `;
 
   const input = container.querySelector('#jsonInput');
   const output = container.querySelector('#jsonOutput');
   const error = container.querySelector('#jsonError');
+
+  hookFileDrop(input, {
+    onText: (text, file) => {
+      input.value = text;
+      try {
+        const parsed = JSON.parse(text);
+        output.textContent = JSON.stringify(parsed, null, 2);
+        hideError();
+        toast('Файл ' + file.name + ' отформатирован', 'success');
+      } catch (e) {
+        showError('Ошибка: ' + e.message);
+      }
+    }
+  });
 
   function showError(msg) {
     error.textContent = msg;
